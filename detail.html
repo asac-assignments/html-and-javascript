@@ -9,10 +9,10 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input" onkeyup="Save()" />
       </div>
       <div class="filter-container">
-        <select id="todo-filter">
+        <select id="todo-filter" onchange="filterList()">
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
@@ -23,5 +23,92 @@
       </div>
     </section>
   </body>
-  <script></script>
+  <script>
+    function onEnter() {
+      if (window.event.keyCode == 13) {
+        return true;
+      }
+    }
+
+    function Save() {
+      const input_object = document.querySelector(".todo-input");
+      const input_object_content = input_object.value.trim();
+      if ((input_object_content !== "") & onEnter()) {
+        CreateTodoListItemElement(input_object_content);
+        input_object.value = "";
+      }
+    }
+
+    function CreateTodoListItemElement(content) {
+      const todo_list_li = document.createElement("li");
+      const todo_list_checkBox = document.createElement("input");
+      const todo_list_span = document.createElement("span");
+      const todo_list_edit_button = document.createElement("button");
+      const todo_list_delete_button = document.createElement("button");
+
+      todo_list_checkBox.type = "checkbox";
+      todo_list_span.textContent = content;
+      todo_list_edit_button.textContent = "Edit";
+      todo_list_delete_button.textContent = "X";
+
+      todo_list_checkBox.addEventListener("click", () => filterList());
+      todo_list_edit_button.addEventListener("click", () =>
+        editTodoItem(todo_list_li, todo_list_span)
+      );
+      todo_list_delete_button.addEventListener("click", () =>
+        deleteTodoItem(todo_list_li)
+      );
+
+      todo_list_li.appendChild(todo_list_checkBox);
+      todo_list_li.appendChild(todo_list_span);
+      todo_list_li.appendChild(todo_list_edit_button);
+      todo_list_li.appendChild(todo_list_delete_button);
+
+      document.getElementById("todo-list").appendChild(todo_list_li);
+    }
+
+    function editTodoItem(li, span) {
+      const li_buttons = li.querySelectorAll("button");
+      li_buttons.forEach((button) => (button.style.display = "none"));
+      span.style.display = "none";
+
+      const edit_input = document.createElement("input");
+      const edit_save = document.createElement("button");
+      edit_save.textContent = "Save";
+      edit_input.value = span.textContent;
+      li.appendChild(edit_input);
+      li.appendChild(edit_save);
+
+      edit_save.onclick = () => {
+        const updated_content = edit_input.value.trim();
+        if (updated_content !== "") {
+          // span.textContent = updated_content;
+          span.textContent = updated_content;
+        }
+        li.removeChild(edit_input);
+        li.removeChild(edit_save);
+        span.style.display = "inline";
+        li_buttons.forEach((button) => (button.style.display = "inline"));
+      };
+    }
+
+    function deleteTodoItem(li) {
+      const todo_list = document.querySelector("#todo-list");
+      todo_list.removeChild(li);
+    }
+    
+    function filterList() {
+      const filter_value = document.getElementById("todo-filter").value;
+      const todo_items = document.querySelectorAll("#todo-list li");
+      todo_items.forEach((item) => {
+        const checkbox = item.querySelector("input[type='checkbox']");
+        item.style.display = "list-item";
+        if (filter_value === "todo" && checkbox.checked) {
+          item.style.display = "none";
+        } else if (filter_value === "done" && !checkbox.checked) {
+          item.style.display = "none";
+        }
+      });
+    }
+  </script>
 </html>
