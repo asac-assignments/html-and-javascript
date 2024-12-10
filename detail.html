@@ -24,6 +24,22 @@
     </section>
   </body>
   <script>
+    const filterDropdown = document.getElementById("todo-filter");
+    filterDropdown.addEventListener("change", filterTodoList);
+
+    function filterTodoList() {
+      const filterValue = filterDropdown.value;
+      const todoItems = todoList.querySelectorAll(".todo-item");
+
+      todoItems.forEach((item) => {
+            if (filterValue === "all" || item.dataset.status === filterValue) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
     const todoList = document.getElementById("todo-list");
 
     function addTodo(event) {
@@ -93,6 +109,5 @@
     function deleteTodo(listItem) {
       listItem.remove();
     }
-
   </script>
 </html>
