@@ -12,7 +12,7 @@
         <input type="text" class="todo-input" />
       </div>
       <div class="filter-container">
-        <select id="todo-filter">
+        <select id="todo-filter" disabled>
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
@@ -23,5 +23,133 @@
       </div>
     </section>
   </body>
-  <script></script>
+  <script>
+    // 변수선언
+    const $todolist = document.getElementById("todo-list");
+    const $todoInput = document.querySelector(".todo-input");
+    const $checkbox = document.querySelectorAll(".todo_checkbox");
+    const $todoFilter = document.getElementById("todo-filter");
+    let $liEl;
+    let inputText;
+
+    // 이벤트리스너 바인딩
+    $todoInput.addEventListener("input", (e) => {
+      inputText = e.target.value;
+    });
+    $todoInput.addEventListener("keydown", (e) => {
+      if (e.keyCode === 13) {
+        addTodo();
+      }
+    });
+
+    $todolist.addEventListener("click", (e) => {
+      // 동적으로 생겨난 체크박스이므로 이벤트위임
+      if (e.target.classList.contains("todo_checkbox")) {
+        toggleCompleteTodo(e);
+      }
+      if (e.target.classList.contains("todo_edit_btn")) {
+        switchToInputField(e);
+      }
+      if (e.target.classList.contains("edit_save_btn")) {
+        editTodo(e);
+      }
+      if (e.target.classList.contains("todo_delete_btn")) {
+        deleteTodo(e);
+      }
+    });
+    $todolist.addEventListener("keydown", (e) => {
+      if (e.keyCode === 13) {
+        if (e.target.classList.contains("edit_input")) {
+          editTodo(e);
+        }
+      }
+    });
+    $todoFilter.addEventListener("change", (e) => {
+      selectFilterOption(e);
+    });
+
+    // 함수선언
+    /*
+     * 할 일 추가
+     */
+    const addTodo = () => {
+      $liEl = `
+          <li data-status="todo">
+            <input class="todo_checkbox" type="checkbox" name="" id="" />
+            ${inputText}
+            <button class="todo_edit_btn" type="text">Edit</button>
+            <button class="todo_delete_btn" type="text">X</button>
+          </li>`;
+
+      $todolist.insertAdjacentHTML("beforeend", $liEl);
+      $todoFilter.removeAttribute("disabled");
+
+      // 초기화
+      $todoInput.value = "";
+      $todoFilter.value = "all";
+    };
+    /*
+     * 할 일 완료 체크박스 토글
+     */
+    const toggleCompleteTodo = (e) => {
+      if (e.target.checked) {
+        e.target.parentElement.dataset.status = "done";
+      } else {
+        e.target.parentElement.dataset.status = "todo";
+      }
+    };
+    /*
+     * 할 일 수정가능한 상태로 변환
+     */
+    const switchToInputField = (e) => {
+      e.target.parentElement.innerHTML = `
+          <input class="edit_input" type="text" name="" id="">
+          <button class="edit_save_btn" type="text">Save</button>
+        `;
+    };
+    /*
+     * 할 일 수정
+     */
+    const editTodo = (e) => {
+      const editedText = e.target.parentElement.querySelector("input").value;
+      e.target.parentElement.innerHTML = `
+            <input class="todo_checkbox" type="checkbox" name="" id="" />
+            ${editedText}
+            <button class="todo_edit_btn" type="text">Edit</button>
+            <button class="todo_delete_btn" type="text">X</button>
+        `;
+    };
+    /*
+     * 할 일 삭제
+     */
+    const deleteTodo = (e) => {
+      e.target.closest("li").remove();
+      if ($todolist.querySelectorAll("li").length === 0) {
+        $todoFilter.setAttribute("disabled", "disabled");
+      } else {
+        $todoFilter.removeAttribute("disabled");
+      }
+    };
+    /*
+     * 셀렉트 옵션 선택 이벤트
+     */
+    const selectFilterOption = (e) => {
+      const todoListItem = $todolist.querySelectorAll("li");
+
+      todoListItem.forEach((el) => {
+        switch (e.target.value) {
+          case "all":
+            el.style.display = "block";
+            break;
+          case "todo":
+            el.style.display = el.dataset.status === "todo" ? "block" : "none";
+            break;
+          case "done":
+            el.style.display = el.dataset.status === "done" ? "block" : "none";
+            break;
+          default:
+        }
+      });
+    };
+  </script>
 </html>
