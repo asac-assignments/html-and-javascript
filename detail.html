@@ -9,7 +9,7 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input" onkeyup="addTodo(event)" />
       </div>
       <div class="filter-container">
         <select id="todo-filter">
@@ -23,5 +23,91 @@
       </div>
     </section>
   </body>
-  <script></script>
+  <script>
+    const filterDropdown = document.getElementById("todo-filter");
+    filterDropdown.addEventListener("change", filterTodoList);
+
+    function filterTodoList() {
+      const filterValue = filterDropdown.value;
+      const todoItems = todoList.querySelectorAll(".todo-item");
+
+      todoItems.forEach((item) => {
+            if (filterValue === "all" || item.dataset.status === filterValue) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+    const todoList = document.getElementById("todo-list");
+
+    function addTodo(event) {
+        if (event.key === "Enter") {
+            const todoInput = event.target;
+            const inputValue = todoInput.value.trim();
+
+            if (inputValue) {
+                const newListItem = document.createElement("li");
+                newListItem.classList.add("todo-item");
+                newListItem.dataset.status = "todo";
+
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.addEventListener("click", toggleTodoStatus);
+
+                const todoText = document.createElement("span");
+                todoText.textContent = inputValue;
+
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => editTodo(newListItem, todoText, editButton, deleteButton));
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "X";
+                deleteButton.addEventListener("click", () => deleteTodo(newListItem));
+
+                newListItem.appendChild(checkbox);
+                newListItem.appendChild(todoText);
+                newListItem.appendChild(editButton);
+                newListItem.appendChild(deleteButton);
+                todoList.appendChild(newListItem);
+
+                todoInput.value = "";
+            }
+        }
+    }
+
+    function toggleTodoStatus(event) {
+        const listItem = event.target.parentElement;
+        listItem.dataset.status = event.target.checked ? "done" : "todo";
+    }
+
+    function editTodo(listItem, todoText, editButton, deleteButton) {
+        const editInput = document.createElement("input");
+        editInput.setAttribute("type", "text");
+        editInput.value = todoText.textContent;
+
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+
+        editButton.style.display = "none";
+        deleteButton.style.display = "none";
+
+        saveButton.addEventListener("click", () => {
+            todoText.textContent = editInput.value;
+            listItem.replaceChild(todoText, editInput);
+            listItem.removeChild(saveButton);
+            editButton.style.display = "inline";
+            deleteButton.style.display = "inline";
+        });
+
+        listItem.replaceChild(editInput, todoText);
+        listItem.appendChild(saveButton);
+    }
+
+    function deleteTodo(listItem) {
+      listItem.remove();
+    }
+  </script>
 </html>
