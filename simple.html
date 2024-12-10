@@ -10,7 +10,7 @@
       <h1 class="title">TODO</h1>
       <div class="input-container">
         <input type="text" class="todo-input" />
-        <input type="button" value="저장" />
+        <input type="button" value="저장" id="save-button" />
       </div>
       <div class="list-container">
         <ul id="todo-list" class="todo-list">
@@ -21,4 +21,25 @@
     </section>
     <script></script>
   </body>
+  <script>
+    const saveButton = document.getElementById("save-button");
+    const todoInput = document.querySelector(".todo-input");
+    const todoList = document.getElementById("todo-list");
+
+    saveButton.addEventListener("click", () => {
+      const inputValue = todoInput.value.trim();
+      if(!inputValue) {
+        alert("입력한 값이 없습니다.");
+        return;
+      }
+
+      const confirmAlert = confirm(`"${inputValue}" 저장하시겠습니까?`);
+      if(confirmAlert) {
+        const newListItem = document.createElement("li");
+        newListItem.textContent = inputValue;
+        todoList.appendChild(newListItem);
+        todoInput.value = "";
+      }
+    });
+  </script>
 </html>
