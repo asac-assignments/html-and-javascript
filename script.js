@@ -15,3 +15,8 @@ document.getElementById("save-button").addEventListener("click", () => {
     alert("할 일을 입력하세요.");
   }
 });
+
+/* 취소 버튼 누를경우 modal에 hidden 속성 추가 */
+document.getElementById("cancel-button").addEventListener("click", () => {
+  document.getElementById("modal").classList.add("hidden");
+});
