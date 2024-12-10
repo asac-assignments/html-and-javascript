@@ -43,8 +43,13 @@
                 const todoText = document.createElement("span");
                 todoText.textContent = inputValue;
 
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => editTodo(newListItem, todoText, editButton));
+
                 newListItem.appendChild(checkbox);
                 newListItem.appendChild(todoText);
+                newListItem.appendChild(editButton);
                 todoList.appendChild(newListItem);
 
                 todoInput.value = "";
@@ -55,6 +60,27 @@
     function toggleTodoStatus(event) {
         const listItem = event.target.parentElement;
         listItem.dataset.status = event.target.checked ? "done" : "todo";
+    }
+
+    function editTodo(listItem, todoText, editButton) {
+        const editInput = document.createElement("input");
+        editInput.setAttribute("type", "text");
+        editInput.value = todoText.textContent;
+
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+
+        editButton.style.display = "none";
+
+        saveButton.addEventListener("click", () => {
+            todoText.textContent = editInput.value;
+            listItem.replaceChild(todoText, editInput);
+            listItem.removeChild(saveButton);
+            editButton.style.display = "inline";
+        });
+
+        listItem.replaceChild(editInput, todoText);
+        listItem.appendChild(saveButton);
     }
   </script>
 </html>
