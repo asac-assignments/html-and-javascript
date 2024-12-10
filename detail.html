@@ -24,20 +24,37 @@
     </section>
   </body>
   <script>
+    const todoList = document.getElementById("todo-list");
+
     function addTodo(event) {
         if (event.key === "Enter") {
-          const todoInput = event.target;
-          const inputValue = todoInput.value.trim();
+            const todoInput = event.target;
+            const inputValue = todoInput.value.trim();
 
-          const todoList = document.getElementById("todo-list");
-          const newListItem = document.createElement("li");
-          newListItem.textContent = inputValue;
-          newListItem.classList.add("todo-item");
-          newListItem.dataset.status = "todo";
-          todoList.appendChild(newListItem);
+            if (inputValue) {
+                const newListItem = document.createElement("li");
+                newListItem.classList.add("todo-item");
+                newListItem.dataset.status = "todo";
 
-          todoInput.value = "";
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.addEventListener("click", toggleTodoStatus);
+
+                const todoText = document.createElement("span");
+                todoText.textContent = inputValue;
+
+                newListItem.appendChild(checkbox);
+                newListItem.appendChild(todoText);
+                todoList.appendChild(newListItem);
+
+                todoInput.value = "";
+            }
         }
-      }
+    }
+
+    function toggleTodoStatus(event) {
+        const listItem = event.target.parentElement;
+        listItem.dataset.status = event.target.checked ? "done" : "todo";
+    }
   </script>
 </html>
