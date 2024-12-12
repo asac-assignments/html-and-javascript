@@ -9,7 +9,7 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input" onkeyup="submitToDo(event)" />
       </div>
       <div class="filter-container">
         <select id="todo-filter">
@@ -23,5 +23,156 @@
       </div>
     </section>
   </body>
-  <script></script>
+  <script>
+    /*선택된 필터 값 변경 시 호출되는 함수
+      필터에 따라 리스트 항목을 표시하거나 숨김*/
+    const onClickFilter = (event) => {
+      const filterValue = event.target.value;
+      const listItems = document.querySelectorAll(".todo-list li");
+
+      listItems.forEach((item) => {
+        const checkbox = item.querySelector(".checkbox");
+        const isChecked = checkbox.checked;
+
+        switch (filterValue) {
+          case "all":
+            item.removeAttribute("hidden");
+            break;
+          case "todo":
+            isChecked
+              ? item.setAttribute("hidden", "true")
+              : item.removeAttribute("hidden");
+            break;
+          case "done":
+            isChecked
+              ? item.removeAttribute("hidden")
+              : item.setAttribute("hidden", "true");
+            break;
+          default:
+            item.removeAttribute("hidden");
+        }
+      });
+    };
+    document
+      .querySelector("#todo-filter")
+      .addEventListener("change", onClickFilter);
+
+    /*새로운 할일 항목을 추가하기 위한 함수
+    Enter키가 눌리면 새로운 할일을 생성하여 리스트에 추가*/
+    const submitToDo = (event) => {
+      if (event.keyCode == 13) {
+        const userInput = document.querySelector(".todo-input");
+
+        const newToDo = document.createElement("li");
+        createContentsInsideElement(newToDo, userInput.value);
+
+        const currentToDos = document.querySelector(".todo-list");
+        currentToDos.appendChild(newToDo);
+
+        userInput.value = "";
+
+        const filterValue = document.querySelector("#todo-filter").value;
+
+        //선택된 필터 값이 "done"인 경우, 새로 생성된 할일 항목을 숨김
+        if (filterValue == "done") {
+          newToDo.setAttribute("hidden", "true");
+        }
+      }
+    };
+
+    /*새로운 할일 항목의 내용을 생성하는 함수
+    입력으로 새 할일 항목과 사용자 입력 텍스트를 받고, 체크박스와 버튼 등을 포함하는 HTML요소를 만든다 */
+    const createContentsInsideElement = (newToDo, userInput) => {
+      const toDoCheckbox = document.createElement("input");
+      toDoCheckbox.type = "checkbox";
+      toDoCheckbox.className = "checkbox";
+      toDoCheckbox.addEventListener("click", toggleCheck);
+
+      const toDoContent = document.createTextNode(userInput);
+      const editButton = document.createElement("button");
+      editButton.innerHTML = "Edit";
+      editButton.className = "edit";
+      editButton.addEventListener("click", revealEditForm);
+
+      const editForm = document.createElement("input");
+      editForm.type = "text";
+      editForm.value = userInput;
+      editForm.setAttribute("hidden", true);
+
+      const saveButton = document.createElement("button");
+      saveButton.innerHTML = "Save";
+      saveButton.setAttribute("hidden", true);
+      saveButton.addEventListener("click", saveEditedContent);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.innerHTML = "X";
+      deleteButton.addEventListener("click", handleDelete);
+
+      newToDo.appendChild(toDoCheckbox);
+      newToDo.appendChild(toDoContent);
+      newToDo.appendChild(editButton);
+      newToDo.appendChild(deleteButton);
+
+      newToDo.appendChild(editForm);
+      newToDo.appendChild(saveButton);
+    };
+
+    /*체크박스의 체크 상태를 토글하는 함수*/
+    const toggleCheck = (event) => {
+      if (event.target.getAttribute("checked")) {
+        event.target.removeAttribute("checked");
+      } else {
+        event.target.setAttribute("checked", true);
+      }
+    };
+
+    /*편집 폼을 보여주기 위한 함수
+    선택된 항목의 텍스트를 제거하고 편집 폼을 표시*/
+    const revealEditForm = (event) => {
+      const selectedItem = event.target.parentElement;
+
+      selectedItem.removeChild(selectedItem.childNodes[1]);
+
+      const buttonsToHide = selectedItem.childNodes;
+      buttonsToHide.forEach((element) => {
+        toggleHidden(element);
+      });
+      selectedItem.querySelector("input[type='text']").focus();
+    };
+    /*수정된 내용을 저장하기 위한 함수
+    입력된 내용을 텍스트 노드로 변환하여 항목에 삽입*/
+    const saveEditedContent = (event) => {
+      const elementToSave = event.target.parentNode;
+      const contentText = document.createTextNode(
+        elementToSave.querySelector("input[type='text']").value
+      );
+      const butttons = elementToSave.childNodes;
+
+      butttons.forEach((element) => {
+        toggleHidden(element);
+      });
+
+      elementToSave.insertBefore(
+        contentText,
+        elementToSave.querySelector(".edit")
+      );
+    };
+
+    /*HTML 요소의 숨김 상태를 토글하는 함수
+    요소의 hidden속성을 변경*/
+    const toggleHidden = (element) => {
+      if (element.getAttribute("hidden") !== null) {
+        element.removeAttribute("hidden");
+      } else {
+        element.setAttribute("hidden", true);
+      }
+    };
+
+    /*할일 항목을 삭제하는 함수
+    선택된 할일 항목을 리스트에서 제거*/
+    const handleDelete = (event) => {
+      const listItem = event.target.parentNode;
+      listItem.remove();
+    };
+  </script>
 </html>

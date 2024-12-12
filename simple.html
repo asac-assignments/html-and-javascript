@@ -10,7 +10,7 @@
       <h1 class="title">TODO</h1>
       <div class="input-container">
         <input type="text" class="todo-input" />
-        <input type="button" value="저장" />
+        <input type="button" value="저장" onclick="submitToDo(event)" />
       </div>
       <div class="list-container">
         <ul id="todo-list" class="todo-list">
@@ -19,6 +19,17 @@
         </ul>
       </div>
     </section>
-    <script></script>
+    <script>
+      const submitToDo = (event) => {
+        event.preventDefault();
+        const userInput = document.querySelector(".todo-input").value;
+        if (window.confirm(`"${userInput}" 저장하시겠습니까?`)) {
+          const newTodo = document.createElement("li");
+          newTodo.innerHTML = userInput;
+          const currentTodos = document.querySelector(".todo-list");
+          currentTodos.appendChild(newTodo);
+        }
+      };
+    </script>
   </body>
 </html>
