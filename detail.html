@@ -37,31 +37,36 @@
       inputText = e.target.value.trim();
     });
     $todoInput.addEventListener("keydown", (e) => {
-      if (e.keyCode === 13 && inputText) {
-        addTodo();
-      }
+      if (!(e.keyCode === 13 && inputText)) return;
+      addTodo();
     });
 
     // 동적으로 생겨난 요소이므로 이벤트위임
     $todolist.addEventListener("click", (e) => {
-      if (e.target.classList.contains("todo_checkbox")) {
-        toggleCompleteTodo(e);
-      }
-      if (e.target.classList.contains("todo_edit_btn")) {
-        switchToInputField(e);
-      }
-      if (e.target.classList.contains("edit_save_btn")) {
-        editTodo(e);
-      }
-      if (e.target.classList.contains("todo_delete_btn")) {
-        deleteTodo(e);
+      switch (e.target.className) {
+        case "todo_checkbox":
+          toggleCompleteTodo(e);
+          break;
+
+        case "todo_edit_btn":
+          switchToInputField(e);
+          break;
+
+        case "edit_save_btn":
+          editTodo(e);
+          break;
+
+        case "todo_delete_btn":
+          deleteTodo(e);
+          break;
+        default:
+          break;
       }
     });
     $todolist.addEventListener("keydown", (e) => {
-      if (e.keyCode === 13) {
-        if (e.target.classList.contains("edit_input")) {
-          editTodo(e);
-        }
+      if (e.keyCode !== 13) return;
+      if (e.target.classList.contains("edit_input")) {
+        editTodo(e);
       }
     });
     $todoFilter.addEventListener("change", (e) => {
@@ -76,7 +81,7 @@
       $liEl = `
           <li data-status="todo">
             <input class="todo_checkbox" type="checkbox" name="" id="" />
-            ${inputText}
+            <span>${inputText}</span>
             <button class="todo_edit_btn" type="text">Edit</button>
             <button class="todo_delete_btn" type="text">X</button>
           </li>`;
@@ -102,8 +107,10 @@
      * 할 일 수정가능한 상태로 변환
      */
     const switchToInputField = (e) => {
+      const text = e.target.parentElement.querySelector("span").textContent;
+
       e.target.parentElement.innerHTML = `
-          <input class="edit_input" type="text" name="" id="">
+          <input class="edit_input" type="text" name="" id="" value="${text}"">
           <button class="edit_save_btn" type="text">Save</button>
         `;
     };
@@ -112,9 +119,10 @@
      */
     const editTodo = (e) => {
       const editedText = e.target.parentElement.querySelector("input").value;
+      if (!editedText) return;
       e.target.parentElement.innerHTML = `
             <input class="todo_checkbox" type="checkbox" name="" id="" />
-            ${editedText}
+            <span>${editedText}</span>
             <button class="todo_edit_btn" type="text">Edit</button>
             <button class="todo_delete_btn" type="text">X</button>
         `;

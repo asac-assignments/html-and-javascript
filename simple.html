@@ -28,9 +28,8 @@
         inputText = e.target.value.trim();
       });
       $todoInput.addEventListener("keydown", (e) => {
-        if (e.keyCode === 13 && inputText) {
-          addTodo();
-        }
+        if (e.keyCode !== 13) return;
+        addTodo();
       });
       $saveTodoBtn.addEventListener("click", (e) => {
         addTodo();
@@ -38,6 +37,7 @@
 
       // 함수선언
       const addTodo = () => {
+        if (!inputText) return;
         if (window.confirm(`"${$todoInput.value}" 저장하시겠습니까?`)) {
           $liEl = `<li>${inputText}</li>`;
 
