@@ -19,6 +19,7 @@ function createdInput (inner , type , className) {
     createdInput.className = className;
 
     return createdInput;
+    
 }
 
 function createdElement (element , inner , className) {
