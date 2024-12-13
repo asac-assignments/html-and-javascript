@@ -34,7 +34,7 @@
 
     // 이벤트리스너 바인딩
     $todoInput.addEventListener("input", (e) => {
-      inputText = e.target.value;
+      inputText = e.target.value.trim();
     });
     $todoInput.addEventListener("keydown", (e) => {
       if (e.keyCode === 13 && inputText) {
@@ -42,8 +42,8 @@
       }
     });
 
+    // 동적으로 생겨난 요소이므로 이벤트위임
     $todolist.addEventListener("click", (e) => {
-      // 동적으로 생겨난 체크박스이므로 이벤트위임
       if (e.target.classList.contains("todo_checkbox")) {
         toggleCompleteTodo(e);
       }

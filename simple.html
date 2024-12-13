@@ -25,7 +25,7 @@
 
       // 이벤트리스너 바인딩
       $todoInput.addEventListener("input", (e) => {
-        inputText = e.target.value;
+        inputText = e.target.value.trim();
       });
       $todoInput.addEventListener("keydown", (e) => {
         if (e.keyCode === 13 && inputText) {
