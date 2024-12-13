@@ -12,7 +12,7 @@
         <input type="text" class="todo-input" onkeyup="addTodoList()"/>
       </div>
       <div class="filter-container">
-        <select id="todo-filter" onchange="dropDownList()">
+        <select id="todo-filter" onchange="HandleOnChange(event)">
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
