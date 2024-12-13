@@ -4,15 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail TODO List</title>
+    <script type="text/javascript" src="./DetailJs.js"></script>
   </head>
   <body>
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input" onkeyup="show_text(event)" />
       </div>
       <div class="filter-container">
-        <select id="todo-filter">
+        <select id="todo-filter" onchange="todoFilter(value)">
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
@@ -23,5 +24,4 @@
       </div>
     </section>
   </body>
-  <script></script>
 </html>
