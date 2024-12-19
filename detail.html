@@ -76,6 +76,27 @@
       element.setAttribute(`data-key`, key);
     }
 
+    function editTodoItemToLocalStorage(element, updated_content) {
+      const editItemKey = element.getAttribute("data-key");
+      todoListArray.map((item) => {
+        if (item.key === editItemKey) {
+          item.value = updated_content;
+        }
+      });
+      setLocalStorage(todoListArray);
+    }
+
+    function filterTodoItemById(todoList, key) {
+      return todoList.filter((item) => item.key !== key);
+    }
+
+    function deleteTodoItemToLocalStorage(element) {
+      const deleteItemKey = element.getAttribute("data-key");
+      todoListArray = filterTodoItemById(todoListArray, deleteItemKey);
+      setLocalStorage(todoListArray);
+      localStorage.removeItem(deleteItemKey);
+    }
+
     function CreateTodoListItemElement(content) {
       const todo_list_li = addElement("li");
       const todo_list_checkBox = addElement("input");
@@ -119,6 +140,7 @@
         const updated_content = edit_input.value.trim();
         if (updated_content !== "") {
           span.textContent = updated_content;
+          editTodoItemToLocalStorage(li, updated_content);
         }
         li.removeChild(edit_input);
         li.removeChild(edit_save);
@@ -129,6 +151,7 @@
 
     function deleteTodoItem(li) {
       const todo_list = document.querySelector("#todo-list");
+      deleteTodoItemToLocalStorage(li);
       if (todo_list.contains(li)) {
         todo_list.removeChild(li);
       }
