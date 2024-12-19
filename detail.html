@@ -39,25 +39,35 @@
       }
     }
 
+    function addElementToEvent(element, fn) {
+      if (element) {
+        element.addEventListener("click", fn);
+      }
+    }
+    function addElement(elementName) {
+      return document.createElement(elementName);
+    }
+
     function CreateTodoListItemElement(content) {
-      const todo_list_li = document.createElement("li");
-      const todo_list_checkBox = document.createElement("input");
-      const todo_list_span = document.createElement("span");
-      const todo_list_edit_button = document.createElement("button");
-      const todo_list_delete_button = document.createElement("button");
+      const todo_list_li = addElement("li");
+      const todo_list_checkBox = addElement("input");
+      const todo_list_span = addElement("span");
+      const todo_list_edit_button = addElement("button");
+      const todo_list_delete_button = addElement("button");
 
       todo_list_checkBox.type = "checkbox";
       todo_list_span.textContent = content;
       todo_list_edit_button.textContent = "Edit";
       todo_list_delete_button.textContent = "X";
 
-      todo_list_checkBox.addEventListener("click", () => filterList());
-      todo_list_edit_button.addEventListener("click", () =>
+      addElementToEvent(todo_list_checkBox, () => filterList());
+      addElementToEvent(todo_list_edit_button, () =>
         editTodoItem(todo_list_li, todo_list_span)
       );
-      todo_list_delete_button.addEventListener("click", () =>
+      addElementToEvent(todo_list_delete_button, () =>
         deleteTodoItem(todo_list_li)
       );
+      addTodoItemToLocalStorage(todo_list_li, content);
 
       todo_list_li.appendChild(todo_list_checkBox);
       todo_list_li.appendChild(todo_list_span);
@@ -71,9 +81,8 @@
       const li_buttons = li.querySelectorAll("button");
       li_buttons.forEach((button) => (button.style.display = "none"));
       span.style.display = "none";
-
-      const edit_input = document.createElement("input");
-      const edit_save = document.createElement("button");
+      const edit_input = addElement("input");
+      const edit_save = addElement("button");
       edit_save.textContent = "Save";
       edit_input.value = span.textContent;
       li.appendChild(edit_input);
@@ -82,7 +91,6 @@
       edit_save.onclick = () => {
         const updated_content = edit_input.value.trim();
         if (updated_content !== "") {
-          // span.textContent = updated_content;
           span.textContent = updated_content;
         }
         li.removeChild(edit_input);
@@ -94,9 +102,11 @@
 
     function deleteTodoItem(li) {
       const todo_list = document.querySelector("#todo-list");
-      todo_list.removeChild(li);
+      if (todo_list.contains(li)) {
+        todo_list.removeChild(li);
+      }
     }
-    
+
     function filterList() {
       const filter_value = document.getElementById("todo-filter").value;
       const todo_items = document.querySelectorAll("#todo-list li");
