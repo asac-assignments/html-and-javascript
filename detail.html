@@ -24,10 +24,26 @@
     </section>
   </body>
   <script>
+    let todoListArray = [];
+    function loadLocalStorageItem() {
+      if (todoListArray.length === 0) {
+        const todolist = JSON.parse(localStorage.getItem(`todoListStorage`));
+        if (todolist !== null) {
+          todolist.forEach((item) => {
+            CreateTodoListItemElement(item.value);
+          });
+        }
+      }
+    }
+    loadLocalStorageItem();
     function onEnter() {
       if (window.event.keyCode == 13) {
         return true;
       }
+    }
+    function createKey(value) {
+      const eigenvalue = Date.now();
+      return value + eigenvalue;
     }
 
     function Save() {
@@ -46,6 +62,18 @@
     }
     function addElement(elementName) {
       return document.createElement(elementName);
+    }
+
+    function setLocalStorage(value) {
+      localStorage.setItem(`todoListStorage`, JSON.stringify(value));
+    }
+
+    function addTodoItemToLocalStorage(element, content) {
+      const key = createKey(content);
+      const pushItem = { key: key, value: content };
+      todoListArray.push(pushItem);
+      setLocalStorage(todoListArray);
+      element.setAttribute(`data-key`, key);
     }
 
     function CreateTodoListItemElement(content) {
@@ -87,7 +115,6 @@
       edit_input.value = span.textContent;
       li.appendChild(edit_input);
       li.appendChild(edit_save);
-
       edit_save.onclick = () => {
         const updated_content = edit_input.value.trim();
         if (updated_content !== "") {
