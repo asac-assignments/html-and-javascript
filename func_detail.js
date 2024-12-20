@@ -164,7 +164,7 @@ function saveTodo(event) {
 
     item.replaceChild(saveTodo, input);
 
-    const {todos, index} = getLocalStorageItem(todo);
+    const {todos, index} = getLocalStorageItem(item);
     todos[index].content = saveTodo.textContent;
     localStorage.setItem('todoItem', JSON.stringify(todos));
     
