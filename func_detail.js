@@ -4,28 +4,61 @@ function enterKey(event) {
     }
 }
 
-function createTodo() {
+function loadLocalStorage() {
+    const savedTodos = JSON.parse(localStorage.getItem('todoItem')) || [];
+    savedTodos.forEach(todoData => {
+        createTodo(todoData);
+    })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadLocalStorage();
+});
+
+function getLocalStorageItem(currentItem) {
+    const todos = JSON.parse(localStorage.getItem('todoItem')) || [];
+
+    const index = Array.from(currentItem.parentNode.children).indexOf(currentItem);
+
+    return {todos, index};
+}
+
+function saveLocalStorage(todo) {
+    const existingTodo = JSON.parse(localStorage.getItem('todoItem')) || [];
+    const content = todo.querySelector('.todo-text').textContent;
+    const isChecked = todo.querySelector('.todo-checkbox').checked;
+    const todoObject = {
+        content : content,
+        isChecked : isChecked,
+    };
+    existingTodo.push(todoObject);
+
+    localStorage.setItem('todoItem', JSON.stringify(existingTodo));
+}
+
+function createTodo(todoData) {
     const list = document.getElementById('todo-list');
     const input = document.querySelector('.todo-input');
-    const inputText = input.value.trim();
+    const inputText = todoData ? todoData.content : input.value.trim();
 
     if (inputText === '') {
         alert("내용을 입력하세요.");
         return;
     }
 
-    const isConfirm = confirm(`"${inputText}"를 저장하시겠습니까?`);
-    if (!isConfirm) {
-        return;
+    if (!todoData) {
+        const isConfirm = confirm(`"${inputText}"를 저장하시겠습니까?`);
+        if (!isConfirm) {
+            return;
+        }
     }
-
-    // 피드백) Element Create하는 부분들 모듈화(함수를 모듈화해서 객체로 전달하는 것이 좋다. 버튼을 생성할때, 생성 함수는 1개에 인자를 다르게 해서 생성하는 느낌)
 
     // Create List Element
     const newTodo = document.createElement('li');
     
     // Checkbox
     const checkbox = createCheckbox('input', 'checkbox', 'todo-checkbox')
+    if (todoData) checkbox.checked = todoData.isChecked;
     newTodo.appendChild(checkbox);
     
     // TextContent
@@ -35,55 +68,50 @@ function createTodo() {
     newTodo.appendChild(todoText);
     
     // Button
-    const editButton = createButton('button', 'Edit', 'edit-btn');
+    const editButton = createButton(BUTTON_TYPES.edit);
     newTodo.appendChild(editButton);
-    const saveButton = createButton('button', 'Save', 'save-btn');
+    const saveButton = createButton(BUTTON_TYPES.save);
     newTodo.appendChild(saveButton);
-    const deleteButton = createButton('button', 'X', 'delete-btn');
+    const deleteButton = createButton(BUTTON_TYPES.delete);
     newTodo.appendChild(deleteButton);
 
-    // // 피드백) eventListener는 이벤트를 통해서 조작해야하기 때문에 editTodo ParentNode정돈 허용해야한다.
-    // // -> eventListener는 이벤트가 발생한 요소에 대한 파라미터를 제공함.
     list.appendChild(newTodo);
-
-    input.value = '';
+    
+    if (!todoData) {
+        saveLocalStorage(newTodo);
+        input.value = '';
+    }
 }
 
 function createCheckbox(tag, type, className) {
     const checkbox = document.createElement(tag);
     checkbox.type = type;
     checkbox.classList.add(className);
+    checkbox.addEventListener('change', (event) => {
+        const item = event.target.parentNode;
+        const {todos, index} = getLocalStorageItem(item);
+        todos[index].isChecked = event.target.checked;
+        localStorage.setItem('todoItem', JSON.stringify(todos));
+    });
 
     return checkbox;
 }
 
-function createButton(tag, buttonText, className) {
+const BUTTON_TYPES = {
+    edit: { tag: 'button', buttonText: 'Edit', className: 'edit-btn', handler: editTodo },
+    save: { tag: 'button', buttonText: 'Save', className: 'save-btn', handler: saveTodo },
+    delete: { tag: 'button', buttonText: 'X', className: 'delete-btn', handler: deleteTodo },
+};
+
+function createButton({tag, buttonText, className, handler}) {
     const button = document.createElement(tag);
     button.textContent = buttonText;
     button.classList.add(className);
-    button.addEventListener('click', (e) => { handleButtonEvent(e) } );
+    button.addEventListener('click', handler);
 
     if (buttonText === 'Save') button.style.display = 'none';
 
     return button;
-}
-
-function handleButtonEvent(e) {
-    const buttonName = e.target.className;
-    switch (buttonName) {
-        case 'edit-btn' :
-            editTodo(e);
-            break;
-        case 'save-btn' :
-            saveTodo(e);
-            break;
-        case 'delete-btn' :
-            deleteTodo(e);
-            break;
-        default :
-            console.warn('Unknown Button Action');
-            break;
-    }
 }
 
 function listFilter(event) {
@@ -94,41 +122,36 @@ function listFilter(event) {
         const checkbox = todo.querySelector('.todo-checkbox');
         const isChecked = checkbox.checked;
  
-        if (filter === "all") {
-            console.log(filter);
-            todo.style.display = 'list-item';
-        } else if (filter === 'todo' && !isChecked) {
-            todo.style.display = 'list-item';
-        } else if (filter === 'done' && isChecked) {
-            todo.style.display = 'list-item';
-        } else {
-            todo.style.display = 'none';
-        }
-    })
+        const isVisible =
+        filter === "all" ||
+        (filter === 'todo' && !isChecked) ||
+        (filter === 'done' && isChecked);
+
+        todo.style.display = isVisible ? 'list-item' : 'none';
+    });
 }
 
 function editTodo(event) {
-    // 피드백) 하나의 컴포넌트가 두 개 이상의 작업을 수행하게 되어있음.
-    // 역할을 나눠놓는 것이 좋다. Edit, Save
     const item = event.target.parentNode;
     const todo = item.querySelector('.todo-text');
-    const editBtn = item.querySelector('.edit-btn');
-    const saveBtn = item.querySelector('.save-btn');
-    saveBtn.style.display = 'inline';
-    editBtn.style.display = 'none';
-
+    const editButton = item.querySelector('.edit-btn');
+    const saveButton = item.querySelector('.save-btn');
+    
     const input = document.createElement('input');
-    // Map으로 중앙화도 가능
     input.setAttribute('type', 'text');
     input.setAttribute('class', 'todo-text');
     input.setAttribute('value', todo.textContent);
+
     item.replaceChild(input, todo);
+
+    saveButton.style.display = 'inline';
+    editButton.style.display = 'none';
 }
 
 function saveTodo(event) {
     const item = event.target.parentNode;
-    const editBtn = item.querySelector('.edit-btn');
-    const saveBtn = item.querySelector('.save-btn');
+    const editButton = item.querySelector('.edit-btn');
+    const saveButton = item.querySelector('.save-btn');
 
     const input = item.querySelector('.todo-text');
     if (input.value.trim() === '') {
@@ -140,12 +163,25 @@ function saveTodo(event) {
     saveTodo.textContent = input.value.trim();
 
     item.replaceChild(saveTodo, input);
-    editBtn.style.display = 'inline';
-    saveBtn.style.display = 'none';
+
+    const {todos, index} = getLocalStorageItem(todo);
+    todos[index].content = saveTodo.textContent;
+    localStorage.setItem('todoItem', JSON.stringify(todos));
+    
+
+    editButton.style.display = 'inline';
+    saveButton.style.display = 'none';
 }
 
-// 주어진 걸 최대한 쓰자 이벤트리스너의 파라미터.
 function deleteTodo(event) {
     const todo = event.target.parentNode;
+    const {todos, index} = getLocalStorageItem(todo);
+
+    todos.splice(index, 1);
+    localStorage.setItem('todoItem', JSON.stringify(todos));
+    if (todos.length === 0) {
+        localStorage.removeItem('todoItem');
+    }
+
     todo.remove();
 }
