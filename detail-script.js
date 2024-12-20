@@ -183,7 +183,7 @@ function createInputText() {
 function delElement() {
 	var delBtn = document.createElement('input');
 	delBtn.setAttribute('type', 'button');
-	delBtn.setAttribute('value', 'X');
+	delBtn.setAttribute('value', 'XXX');
 	return delBtn;
 }
 
