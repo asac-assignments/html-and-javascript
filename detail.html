@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script type="text/javascript" src="./func_detail.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail TODO List</title>
@@ -9,10 +10,11 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <!-- onkeyup="(event) => enterKey(event)"로 명시해도 괜찮음 -->
+        <input type="text" class="todo-input" onkeyup="enterKey(event)"/>
       </div>
       <div class="filter-container">
-        <select id="todo-filter">
+        <select id="todo-filter" onchange="listFilter(event)">
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
