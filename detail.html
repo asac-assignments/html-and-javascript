@@ -9,7 +9,7 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input"/>
       </div>
       <div class="filter-container">
         <select id="todo-filter">
@@ -23,5 +23,114 @@
       </div>
     </section>
   </body>
-  <script></script>
+  <script>
+    // JavaScript code for the TODO List functionality
+
+document.addEventListener("DOMContentLoaded", () => {
+    const todoInput = document.querySelector(".todo-input");
+    const todoList = document.getElementById("todo-list");
+    const todoFilter = document.getElementById("todo-filter");
+  
+    let todos = [];
+  
+    // Function to render the TODO list
+    function renderTodos(filter = "all") {
+      todoList.innerHTML = ""; // Clear the list
+      let filteredTodos = todos;
+  
+      if (filter === "todo") {
+        filteredTodos = todos.filter((todo) => !todo.completed);
+      } else if (filter === "done") {
+        filteredTodos = todos.filter((todo) => todo.completed);
+      }
+  
+      filteredTodos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.className = "todo-item";
+  
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener("click", () => toggleTodoStatus(index));
+  
+        const span = document.createElement("span");
+        span.textContent = todo.text;
+        if (todo.completed) {
+          span.style.textDecoration = "line-through";
+        }
+  
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", () => editTodo(index));
+  
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "X";
+        deleteButton.addEventListener("click", () => deleteTodo(index));
+  
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+        todoList.appendChild(li);
+      });
+    }
+  
+    // Function to add a TODO
+    function addTodo(text) {
+      todos.push({ text, completed: false });
+      renderTodos(todoFilter.value);
+    }
+  
+    // Function to toggle the completion status of a TODO
+    function toggleTodoStatus(index) {
+      todos[index].completed = !todos[index].completed;
+      renderTodos(todoFilter.value);
+    }
+  
+    // Function to edit a TODO
+    function editTodo(index) {
+      const li = todoList.children[index];
+      const currentText = todos[index].text;
+  
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = currentText;
+  
+      const saveButton = document.createElement("button");
+      saveButton.textContent = "Save";
+  
+      saveButton.addEventListener("click", () => {
+        todos[index].text = input.value;
+        renderTodos(todoFilter.value);
+      });
+  
+      li.innerHTML = ""; // Clear current list item
+      li.appendChild(input);
+      li.appendChild(saveButton);
+    }
+  
+    // Function to delete a TODO
+    function deleteTodo(index) {
+      todos.splice(index, 1);
+      renderTodos(todoFilter.value);
+    }
+  
+    // Event listener for adding a TODO via Enter key
+    todoInput.addEventListener("keyup", (event) => {
+      if (event.key === "Enter" && todoInput.value.trim() !== "") {
+        addTodo(todoInput.value.trim());
+        todoInput.value = ""; // Clear the input
+      }
+    });
+  
+    // Event listener for filtering TODOs
+    todoFilter.addEventListener("change", (event) => {
+      renderTodos(event.target.value);
+    });
+  
+    // Initial rendering
+    renderTodos();
+  });
+  
+  </script>
 </html>
