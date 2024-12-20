@@ -9,10 +9,10 @@
     <section id="container">
       <h1 class="title">TODO LIST</h1>
       <div class="input-container">
-        <input type="text" class="todo-input" />
+        <input type="text" class="todo-input" id="todo-input" />
       </div>
       <div class="filter-container">
-        <select id="todo-filter">
+        <select id="todo-filter" onchange="todoSelect()">
           <option value="all">전체</option>
           <option value="todo">할일</option>
           <option value="done">완료</option>
@@ -23,5 +23,180 @@
       </div>
     </section>
   </body>
-  <script></script>
+
+  <script>
+    const saveButton = document.getElementById('button');
+    const todoInput = document.getElementById('todo-input');
+    const todoList = document.getElementById('todo-list');
+    const input = document.querySelector('input[type="text"]');
+    const todoFilter = document.getElementById("todo-filter");
+
+    input.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        const todoText = todoInput.value.trim();
+
+        if (todoText === '') return;
+
+        const item = document.createElement('div');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = "x";
+        const updateButton = document.createElement('button');
+        updateButton.textContent = "edit";
+
+        const newTodo = document.createElement('span');
+        newTodo.textContent = todoText;
+
+        item.appendChild(checkbox);
+        item.appendChild(newTodo);
+        item.appendChild(updateButton);
+        item.appendChild(deleteButton);
+        todoList.appendChild(item);
+        todoInput.value = '';
+
+        
+        checkbox.addEventListener('click', (event) => {
+          if (event.currentTarget.checked) {
+            item.setAttribute("data-value", "done");
+          } else {
+            item.setAttribute("data-value", "todo");
+          }
+        });
+
+        
+        deleteButton.addEventListener('click', (event) => {
+          todoList.removeChild(event.currentTarget.parentNode);
+        });
+
+       
+        updateButton.addEventListener('click', (event) => {
+          const currentText = newTodo.textContent;
+          const inputField = document.createElement('input');
+          inputField.type = 'text';
+          inputField.value = currentText;
+
+          
+          const saveButton = document.createElement('button');
+          saveButton.textContent = 'Save';
+          
+          
+          saveButton.addEventListener('click', () => {
+            newTodo.textContent = inputField.value;
+            item.replaceChild(newTodo, inputField);  
+            item.replaceChild(updateButton, saveButton);  
+          });
+
+          item.replaceChild(inputField, newTodo); 
+          item.replaceChild(saveButton, updateButton);  
+        });
+      }
+    });
+
+    function todoSelect() {
+      const filterValue = todoFilter.value; 
+      const toDos = document.querySelectorAll("#todo-list div");
+
+      toDos.forEach((value) => {
+        const todoValue = value.getAttribute("data-value"); 
+
+        if (filterValue === "all") {
+          value.style.display = "flex"; 
+        } 
+        else if (filterValue === "todo" && todoValue !== "done") {
+          value.style.display = "flex"; 
+        } 
+        else if (filterValue === "done" && todoValue === "done") {
+          value.style.display = "flex"; 
+        }
+        else {
+          value.style.display = "none"; 
+        }
+      });
+    }
+
+
+    window.addEventListener('beforeunload', () => {
+      const saveItems = [];
+    for (let i = 0; i < todoList.children.length; i++){
+        const todoObj = {
+            contents: todoList.children[i].querySelector('span').textContent, 
+            complete: todoList.children[i].classList.contains('complete') 
+        };
+        saveItems.push(todoObj); 
+    }
+	  localStorage.setItem('saved-items', JSON.stringify(saveItems));
+      });
+
+
+
+    const savedTodoList = JSON.parse(localStorage.getItem('saved-items'));
+    console.log(savedTodoList)
+    
+
+    if (savedTodoList) { // 로컬에서 데이터 가져오기
+    for(let i = 0; i < savedTodoList.length; i++){
+        const todoText = savedTodoList[i].contents;
+        const complete = savedTodoList[i].complete;
+
+        const item = document.createElement('div');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = complete;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = "x";
+        const updateButton = document.createElement('button');
+        updateButton.textContent = "edit";
+
+        const newTodo = document.createElement('span');
+        newTodo.textContent = todoText;
+
+        item.appendChild(checkbox);
+        item.appendChild(newTodo);
+        item.appendChild(updateButton);
+        item.appendChild(deleteButton);
+        todoList.appendChild(item);
+        todoInput.value = '';
+        checkbox.addEventListener('click', (event) => {
+          if (event.currentTarget.checked) {
+            item.setAttribute("data-value", "done");
+          } else {
+            item.setAttribute("data-value", "todo");
+          }
+        });
+
+        
+        deleteButton.addEventListener('click', (event) => {
+          todoList.removeChild(event.currentTarget.parentNode);
+        });
+
+       
+        updateButton.addEventListener('click', (event) => {
+          const currentText = newTodo.textContent;
+          const inputField = document.createElement('input');
+          inputField.type = 'text';
+          inputField.value = currentText;
+
+          
+          const saveButton = document.createElement('button');
+          saveButton.textContent = 'Save';
+          
+          
+          saveButton.addEventListener('click', () => {
+            newTodo.textContent = inputField.value;
+            item.replaceChild(newTodo, inputField);  
+            item.replaceChild(updateButton, saveButton);  
+          });
+
+          item.replaceChild(inputField, newTodo); 
+          item.replaceChild(saveButton, updateButton);  
+        });
+
+
+    }
+}
+
+    
+
+  </script>
 </html>
