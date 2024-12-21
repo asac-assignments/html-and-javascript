@@ -1,27 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail TODO List</title>
-  </head>
-  <body>
+</head>
+
+
+<body>
     <section id="container">
-      <h1 class="title">TODO LIST</h1>
-      <div class="input-container">
-        <input type="text" class="todo-input" />
-      </div>
-      <div class="filter-container">
-        <select id="todo-filter">
-          <option value="all">전체</option>
-          <option value="todo">할일</option>
-          <option value="done">완료</option>
-        </select>
-      </div>
-      <div class="list-container">
-        <ul id="todo-list" class="todo-list"></ul>
-      </div>
+
+        <h1 class="title">TODO LIST</h1>
+
+        <div class="input-container">
+            <input type="text" class="todo-input" onKeypress="createList(event)" />
+        </div>
+
+        <div class="filter-container">
+            <select id="todo-filter" onChange="changeSelect()">
+                <option value="all">전체</option>
+                <option value="todo">할일</option>
+                <option value="done">완료</option>
+            </select>
+        </div>
+
+        <div class="list-container">
+            <ul id="todo-list" class="todo-list"></ul>
+        </div>
+
     </section>
-  </body>
-  <script></script>
+</body>
+
+
+<script>
+    const getStorgeItem = JSON.parse(localStorage.getItem("item"));
+    itemArr = [];
+
+    if (getStorgeItem != '') {
+        getStorgeItem.forEach((e) => { 
+            itemArr.push(e);
+            getList(e);
+        })
+    }
+
+
+
+    function createBtn(name) {
+        const btn = document.createElement('button');
+        const btnName = document.createTextNode(name);
+        btn.appendChild(btnName);
+        return btn;
+    }
+
+
+
+    function getList(e) {
+        const list = document.getElementById("todo-list");
+        let li = document.createElement('li');
+
+        const checkBox = document.createElement('input');
+
+        const editBtn = createBtn('Edit');
+        const deleteBtn = createBtn('X');
+        const saveBtn = createBtn('save');
+
+        var history = e;
+
+        li.innerText = e;
+        
+        checkBox.type = 'checkbox';
+
+        editBtn.addEventListener("click", () => {
+            checkBox.setAttribute("type", "text");
+            editBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            saveBtn.style.visibility ='visible';
+            li.childNodes[1].nodeValue = '';
+        });
+
+        deleteBtn.addEventListener("click", () => {
+            let deleteStorgeItem = JSON.parse(localStorage.getItem("item"));
+            const storgeItem = deleteStorgeItem.filter(deleteItem => deleteItem !== history);
+            localStorage.setItem("item", JSON.stringify(storgeItem));
+            li.remove();
+        });
+
+        saveBtn.style.visibility ='hidden';
+        saveBtn.addEventListener("click", () => {
+            li.childNodes[1].nodeValue = checkBox.value;
+
+            let editStorgeItem = JSON.parse(localStorage.getItem("item"));
+            const itemIndex = editStorgeItem.findIndex(editItem => editItem == history);
+            editStorgeItem[itemIndex] = checkBox.value;
+            localStorage.setItem("item", JSON.stringify(editStorgeItem));
+            history = checkBox.value;
+
+            checkBox.setAttribute("type", "checkbox");
+            saveBtn.style.visibility ='hidden';
+            editBtn.style.display = 'inline-block';
+            deleteBtn.style.display = 'inline-block';
+        });
+
+        li.prepend(checkBox);
+        li.appendChild(saveBtn);
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+
+    }
+
+
+    function createList(e) {
+        if (e.code != 'Enter') { return; }
+
+        const list = document.getElementById("todo-list");
+        const add = document.querySelector(".todo-input").value;
+        let li = document.createElement('li');
+
+        const checkBox = document.createElement('input');
+
+        const editBtn = createBtn('Edit');
+        const deleteBtn = createBtn('X');
+        const saveBtn = createBtn('save');
+
+        var history = add;
+        li.innerText = add;
+        
+        checkBox.type = 'checkbox';
+
+        editBtn.addEventListener("click", () => {
+            checkBox.setAttribute("type", "text");
+            editBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            saveBtn.style.visibility ='visible';
+            li.childNodes[1].nodeValue = '';
+        });
+
+        deleteBtn.addEventListener("click", () => {
+            let deleteStorgeItem = JSON.parse(localStorage.getItem("item"));
+            const storgeItem = deleteStorgeItem.filter(deleteItem => deleteItem !== history);
+            localStorage.setItem("item", JSON.stringify(storgeItem));
+            li.remove();
+        });
+
+        saveBtn.style.visibility ='hidden';
+        saveBtn.addEventListener("click", () => {
+            li.childNodes[1].nodeValue = checkBox.value;
+
+            let editStorgeItem = JSON.parse(localStorage.getItem("item"));
+            const itemIndex = editStorgeItem.findIndex(editItem => editItem == history);
+            editStorgeItem[itemIndex] = checkBox.value;
+            localStorage.setItem("item", JSON.stringify(editStorgeItem));
+            history = checkBox.value;
+
+            checkBox.setAttribute("type", "checkbox");
+            saveBtn.style.visibility ='hidden';
+            editBtn.style.display = 'inline-block';
+            deleteBtn.style.display = 'inline-block';
+        });
+
+        itemArr.push(li.innerText);
+        localStorage.setItem("item", JSON.stringify(itemArr));
+
+
+
+        li.prepend(checkBox);
+        li.appendChild(saveBtn);
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+
+        document.querySelector(".todo-input").value = "";
+    }
+
+
+
+
+    function changeSelect() {
+        const list = document.getElementById("todo-list");
+        var opt = document.getElementById("todo-filter");
+        var optVal = opt.options[opt.selectedIndex].value;
+        const li = list.getElementsByTagName('li');
+
+        console.log('length: ' + li.length);
+
+        for (let i = 0; i < li.length; i++) {
+            const isChecked = li[i].querySelector('input[type="checkbox"]').checked;
+    
+            switch (optVal) {
+                case 'all':
+                    li[i].style.display = '';
+                    break;
+    
+                case 'todo':
+                    if (isChecked) {
+                        li[i].style.display = 'none';
+                    }
+                    else {
+                        li[i].style.display = '';
+                    }
+                    break;
+    
+                case 'done':
+                    if (isChecked) {
+                        li[i].style.display = '';
+                    }
+                    else {
+                        li[i].style.display = 'none';
+                    }
+                    break;
+            }
+        }
+    }
+</script>
+
 </html>
